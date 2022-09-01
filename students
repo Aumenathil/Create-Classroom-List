@@ -1,0 +1,31 @@
+# This is done in Powershell ISE. Hopefully you have the CSV file you want to create a directory out of already to compile, and to create new user accounts in AD!
+# Import required Modules. For this we want AD, their Organizational Units and Policies.
+Import-Module ActiveDirectory
+
+#Create a new password
+$securePassword = ConvertTo-SecureString "TESTpassword!" -AsPlainText -Force
+
+
+# Prompt user for CSV file path. We'll use the Read-Host command, that allows us to read user input and store it in a variable, such as $filepath.
+$filepath = Read-Host -Prompt "Please enter the path to your CSV file"
+
+# Import the CSV file into a variable called users from the established filepath we already allowed the user to enter previously.
+$users = Import-Csv $filepath
+
+# Next we need to loop through each row of the CSV file and gather up that information
+ForEach ($user in $users) {
+  # Gather the users information. The following gathers the First Name
+  $fname = $user.'First Name'
+  $lname = $user.'Last Name'
+  $jtitle = $user.'Job Title'
+  $officephone = $user.'Office Phone'
+  $email address = $user.'Email Address'
+  $description = $user.Description
+  $OUpath = $user.'Organizational Unit'
+  
+  # Create new AD user for each user in CSV file
+  New-ADuser -Name "$fname $lname" -GivenName $fname  -Surname $lname -UserPrincipalName "$fname.$lname" -Path $OUpath -AccountPassword $securePassword -ChangePasswordAtLogon $True -OfficePhone $officephone -EmailAddress $emailaddress -Description $description -Enabled $True
+  
+  # Echo output for each new user
+  echo "Hey, we created the account for $fname $lname in $OUpath"
+}
